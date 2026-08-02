@@ -1,7 +1,7 @@
 {
   "id": "professor_oak_challenge",
   "name": "Professor Oak Challenge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
@@ -13,5 +13,5 @@
   ],
   "affects_link": false,
   "github": "madramdesign/gen1recomp-professor-oak-challenge",
-  "description": "Professor Oak Challenge (Mewlax RB guide order): catch/evolve before Brock\u2192Misty\u2192Koga\u2192Erika, with tips."
+  "description": "Oak Challenge (Mewlax RB): area catch HUD + Brock\u2192Misty\u2192Koga\u2192Erika gates."
 }

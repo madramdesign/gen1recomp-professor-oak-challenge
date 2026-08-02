@@ -14,12 +14,16 @@ Not normal gym order. Unlock badges that open the most Pokémon:
 6. **Moltres** — Victory Road before Elite Four
 7. **Mewtwo** — Cerulean Cave post-game
 
-## Features
+## Area catch HUD
 
-- Start menu → **OAK CHALLENGE** checklist (`OWN` / `NEED`)
-- **Guide tips** for each part (Moon Stones, spare Spearow/Abra, Safari soft-reset, etc.)
-- Soft / Hard / Off gym (+ E4) gating
-- Red & Blue exclusives; trade evolutions optional
+When you enter a route/cave/city, a box appears on the overworld:
+
+- **OAK BROCK 5/14** — current guide part + overall progress  
+- **NEED HERE:** — species still missing that you can get in this area (and their evolutions)
+
+Options: **AREA CATCH HUD** = On Enter (default) / Always / Off.
+
+Full list + tips remain under Start → **OAK CHALLENGE**.
 
 ## Install
 

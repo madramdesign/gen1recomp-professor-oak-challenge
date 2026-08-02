@@ -31,6 +31,8 @@ return function(mod)
   local Checklist = loadModule("checklist.lua")
   local redSegments = loadModule("segments_red.lua")
   local bluePatch = loadModule("segments_blue.lua")
+  local Areas = loadModule("areas.lua")
+  local installHud = loadModule("hud.lua")
 
   mod.options:define({
     {
@@ -59,6 +61,27 @@ return function(mod)
       default = true,
       description = "Include Mewlax guide tips at the top of the checklist.",
     },
+    {
+      key = "areaHud",
+      label = "AREA CATCH HUD",
+      type = "choice",
+      default = "enter",
+      choices = {
+        { "ON ENTER", "enter" },
+        { "ALWAYS", "always" },
+        { "OFF", "off" },
+      },
+      description = "Show what you still need to catch in the current area on the overworld.",
+    },
+    {
+      key = "areaHudSeconds",
+      label = "HUD SECONDS",
+      type = "number",
+      default = 4,
+      min = 2,
+      max = 10,
+      description = "How long the area HUD stays when set to ON ENTER.",
+    },
   })
 
   local function versionId(game)
@@ -78,6 +101,13 @@ return function(mod)
   local function evalOpts()
     return { includeTrade = mod.options:get("includeTrade") == true }
   end
+
+  installHud(mod, {
+    Checklist = Checklist,
+    Areas = Areas,
+    segmentsFor = segmentsFor,
+    evalOpts = evalOpts,
+  })
 
   local function displayName(game, species)
     local def = game and game.data and game.data.pokemon and game.data.pokemon[species]

@@ -1,7 +1,17 @@
 -- Professor Oak Challenge for Gen1Recomp.
--- Catch (and evolve) every available Pokémon before each gym badge.
+-- Progression follows Mewlax's RB Oak Guide:
+-- https://docs.google.com/document/d/1gmp-piwpfUUyxnWULjQtB2m2lzWeYc-wwsXnnbyp_RY
 
 local SCREEN = "PocChecklist"
+local E4_KEYS = {
+  ["OPP_LORELEI#1"] = true,
+  ["OPP_BRUNO#1"] = true,
+  ["OPP_AGATHA#1"] = true,
+  ["OPP_LANCE#1"] = true,
+  ["OPP_RIVAL3#1"] = true,
+  ["OPP_RIVAL3#2"] = true,
+  ["OPP_RIVAL3#3"] = true,
+}
 
 return function(mod)
   local compile = loadstring or load
@@ -33,14 +43,21 @@ return function(mod)
         { "HARD (BLOCK)", "hard" },
         { "OFF", "off" },
       },
-      description = "SOFT asks before gyms. HARD blocks until the checklist is done. OFF only tracks.",
+      description = "SOFT asks before gated fights. HARD blocks. OFF tracks only.",
     },
     {
       key = "includeTrade",
       label = "REQUIRE TRADE EVOS",
       type = "toggle",
       default = false,
-      description = "Also require Alakazam, Machamp, Golem, and Gengar (needs trading).",
+      description = "Also require Alakazam, Machamp, Golem, Gengar (needs trading).",
+    },
+    {
+      key = "showTips",
+      label = "SHOW GUIDE TIPS",
+      type = "toggle",
+      default = true,
+      description = "Include Mewlax guide tips at the top of the checklist.",
     },
   })
 
@@ -55,7 +72,6 @@ return function(mod)
   local function segmentsFor(game)
     local v = tostring(versionId(game)):lower()
     if v == "blue" then return bluePatch(redSegments) end
-    -- Yellow: start from Red (Pikachu starter still works via starterRequired)
     return redSegments
   end
 
@@ -69,6 +85,13 @@ return function(mod)
     return species
   end
 
+  local function short(s, n)
+    n = n or 14
+    if not s then return "" end
+    if #s <= n then return s end
+    return s:sub(1, n)
+  end
+
   -- ------- Start-menu checklist
   mod.content.screens:register(SCREEN, {
     new = function(game)
@@ -77,7 +100,7 @@ return function(mod)
       local items = {}
 
       if status.done then
-        items[1] = { label = "ALL BADGES DONE!", right = "OK", value = "_done" }
+        items[#items + 1] = { label = "VERSION COMPLETE!", right = "OK", value = "_done" }
       else
         local seg = status.segment
         items[#items + 1] = {
@@ -85,23 +108,34 @@ return function(mod)
           right = ("%d/%d"):format(status.owned, status.total),
           value = "_hdr",
         }
-        items[#items + 1] = {
-          label = seg.mapHint or seg.badge,
-          right = "",
-          value = "_map",
-        }
-        for _, row in ipairs(status.rows) do
-          local name = row.id:sub(1, 1) == "_" and (row.label or row.id)
-            or displayName(game, row.id)
-          if row.detail then name = name .. " (" .. row.detail .. ")" end
-          -- trim for 18-col feel
-          if #name > 14 then name = name:sub(1, 14) end
+        if seg.mapHint then
           items[#items + 1] = {
-            label = name,
-            right = row.ok and "OWN" or "NEED",
-            value = row.id,
+            label = short(seg.mapHint, 16),
+            right = "",
+            value = "_map",
           }
         end
+      end
+
+      if mod.options:get("showTips") ~= false then
+        for i, tip in ipairs(status.tips or {}) do
+          items[#items + 1] = {
+            label = short("· " .. tip, 16),
+            right = "TIP",
+            value = "_tip" .. i,
+          }
+        end
+      end
+
+      for _, row in ipairs(status.rows or {}) do
+        local name = row.id:sub(1, 1) == "_" and (row.label or row.id)
+          or displayName(game, row.id)
+        if row.detail then name = name .. " " .. row.detail end
+        items[#items + 1] = {
+          label = short(name, 14),
+          right = row.ok and "OWN" or "NEED",
+          value = row.id,
+        }
       end
 
       return mod.ui.ListMenu.new(game, "OAK CHALLENGE", items, {
@@ -120,14 +154,16 @@ return function(mod)
     })
   end)
 
-  -- ------- Gym leader gate
+  -- ------- Gates
   local function leaderKey(npc)
     local d = npc and npc.def
     if not d or not d.trainerClass then return nil end
     return tostring(d.trainerClass) .. "#" .. tostring(d.trainerParty or 1)
   end
 
-  local function isGymLeaderKey(key)
+  local function isGymOrE4(key)
+    if not key then return false end
+    if E4_KEYS[key] then return true end
     local ok, victories = pcall(require, "data.scripts.victories")
     if not ok or type(victories) ~= "table" then return false end
     local reward = victories[key]
@@ -137,14 +173,14 @@ return function(mod)
   local function refuseMessage(status)
     local seg = status.segment
     local left = status.total - status.owned
-    return ("OAK's words echoed…\nCatch every POKéMON\nfirst! (%d left)\n%s"):format(
-      left, seg and seg.label or "")
+    return ("OAK's words echoed…\nFinish the %s list\nfirst! (%d left)"):format(
+      seg and seg.label or "Oak", left)
   end
 
   local function softMessage(status)
     local left = status.total - status.owned
-    return ("Professor Oak Challenge\n%d POKéMON still needed\nfor %s.\nChallenge anyway?"):format(
-      left, status.segment and status.segment.label or "this gym")
+    return ("Professor Oak Challenge\n%d still needed for\n%s.\nChallenge anyway?"):format(
+      left, status.segment and status.segment.label or "this part")
   end
 
   local function install(game)
@@ -161,19 +197,47 @@ return function(mod)
       end
 
       local key = leaderKey(npc)
-      if not key or not isGymLeaderKey(key) then
+      if not key or not isGymOrE4(key) then
         return vanilla(self, npc, onDone)
       end
 
-      local victories = require("data.scripts.victories")
-      local reward = victories[key]
-      -- Already hold this badge (rematch / re-talk) — never gate
-      if reward and Checklist.hasBadge(game, reward.badge) then
-        return vanilla(self, npc, onDone)
+      local segs = segmentsFor(game)
+      local opts = evalOpts()
+
+      -- Elite Four: require Moltres (guide part 6)
+      if E4_KEYS[key] then
+        local status = Checklist.evaluate(segs, game, opts)
+        if Checklist.owns(game, "MOLTRES") then
+          return vanilla(self, npc, onDone)
+        end
+        -- Force moltres-oriented status if needed
+        if not status.segment or not status.segment.gateEliteFour then
+          status = {
+            segment = { label = "MOLTRES" },
+            owned = Checklist.owns(game, "MOLTRES") and 1 or 0,
+            total = 1,
+            missing = { "MOLTRES" },
+          }
+        end
+        if mode == "hard" then
+          game.stack:push(TextBox.new(game,
+            "Catch MOLTRES in\nVictory Road before\nthe Elite Four!", function()
+              if onDone then onDone() end
+            end))
+          return
+        end
+        game.stack:push(TextBox.new(game,
+          "Oak Challenge:\nMOLTRES not caught.\nEnter E4 anyway?", nil, {
+            choice = function(yes)
+              if yes then vanilla(self, npc, onDone)
+              elseif onDone then onDone() end
+            end,
+          }))
+        return
       end
 
-      local status = Checklist.evaluate(segmentsFor(game), game, evalOpts())
-      if status.done or #status.missing == 0 then
+      local gate, status = Checklist.shouldGateLeader(segs, game, key, opts)
+      if not gate then
         return vanilla(self, npc, onDone)
       end
 
@@ -184,14 +248,10 @@ return function(mod)
         return
       end
 
-      -- soft
       game.stack:push(TextBox.new(game, softMessage(status), nil, {
         choice = function(yes)
-          if yes then
-            vanilla(self, npc, onDone)
-          elseif onDone then
-            onDone()
-          end
+          if yes then vanilla(self, npc, onDone)
+          elseif onDone then onDone() end
         end,
       }))
     end
@@ -206,5 +266,6 @@ return function(mod)
   end
   mod.exports.checklist = Checklist
 
-  mod.log:info("Professor Oak Challenge ready (mode=%s)", tostring(mod.options:get("mode")))
+  mod.log:info("Professor Oak Challenge ready (Mewlax RB order, mode=%s)",
+    tostring(mod.options:get("mode")))
 end

@@ -1,36 +1,41 @@
 # Professor Oak Challenge
 
-A [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp) mod for the classic **Professor Oak Challenge**: catch and fully evolve every reasonably available Pokémon before each gym.
+A [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp) mod for the classic **Professor Oak Challenge**, following [Mewlax’s RB Oak Guide](https://docs.google.com/document/d/1gmp-piwpfUUyxnWULjQtB2m2lzWeYc-wwsXnnbyp_RY/edit).
+
+## Guide order (important)
+
+Not normal gym order. Unlock badges that open the most Pokémon:
+
+1. **Brock** — Routes 1/22 + Viridian Forest (fully evolve starter + early birds/bugs)
+2. **Misty** (Cut) — Mt. Moon *(point of no return!)*, Cerulean–Vermilion, Diglett’s Cave, SS Anne
+3. **Koga** (Surf) — skip Surge; almost all of Kanto including Safari, Silph, rods, stones
+4. **Erika** (Strength) — Power Plant, Cinnabar fossils, Seafoam Seel
+5. **Articuno** — Seafoam with Strength
+6. **Moltres** — Victory Road before Elite Four
+7. **Mewtwo** — Cerulean Cave post-game
 
 ## Features
 
-- **Checklist** — Start menu → **OAK CHALLENGE** (progress for the next gym)
-- **Soft gate** (default) — gym leaders warn if you’re incomplete; YES continues
-- **Hard gate** — gym leaders refuse until the checklist is done
-- **Off** — tracking only, no gym prompts
-- Red + Blue exclusives (Yellow uses the Red table for now)
-- Trade evolutions optional (Alakazam / Machamp / Golem / Gengar)
-- Starter line, dojo Hitmon, Eevee, and fossil one-of rules
+- Start menu → **OAK CHALLENGE** checklist (`OWN` / `NEED`)
+- **Guide tips** for each part (Moon Stones, spare Spearow/Abra, Safari soft-reset, etc.)
+- Soft / Hard / Off gym (+ E4) gating
+- Red & Blue exclusives; trade evolutions optional
 
 ## Install
 
-1. Download the release zip, or copy this folder to  
-   `~/Library/Application Support/pokemon-love2d/mods/professor_oak_challenge/`
-2. F10 → enable **Professor Oak Challenge**
-3. Restart if needed
+Copy to `mods/professor_oak_challenge/` or import the release zip (F10).
 
-## Options (F10)
+## Options
 
-| Option | Default | Meaning |
-| --- | --- | --- |
-| GATE MODE | SOFT | Soft warn / Hard block / Off |
-| REQUIRE TRADE EVOS | Off | Include trade-only finals |
+| Option | Default |
+| --- | --- |
+| GATE MODE | SOFT |
+| REQUIRE TRADE EVOS | Off |
+| SHOW GUIDE TIPS | On |
 
-## Notes
+## Credit
 
-- Segment lists are **best-effort for v0.1** — soft mode won’t soft-lock you if a species is listed early/late.
-- Ownership uses `pokedex.owned` (caught, gifted, or evolved).
-- Don’t confuse with Nuzlocke — different challenge.
+Segment order and tips adapted from **Mewlax’s Professor Oak Challenge Guide — Pokémon Red/Blue**.
 
 ## License
 

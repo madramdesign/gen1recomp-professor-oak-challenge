@@ -1,0 +1,15 @@
+{
+  "id": "professor_oak_challenge",
+  "name": "Professor Oak Challenge",
+  "version": "0.1.0",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "category": "GAMEPLAY",
+  "game_version": ">=0.1.0 <2.0.0",
+  "priority": 90,
+  "permissions": ["engine_internals"],
+  "affects_link": false,
+  "github": "madramdesign/gen1recomp-professor-oak-challenge",
+  "description": "Catch and evolve every available Pokémon before each gym — Professor Oak Challenge rules with soft/hard gating and a checklist."
+}
